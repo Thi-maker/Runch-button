@@ -150,4 +150,4 @@ button.MouseLeave:Connect(function()
     end
 end)
 
-print("🎮 Interface Runch carregada! Arraste pela barra superior para mover.")# Runch-button
+print("🎮 Interface Runch carregada! Arraste pela barra superior para mover.")
