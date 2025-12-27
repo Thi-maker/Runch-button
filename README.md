@@ -1,1 +1,153 @@
-# Runch-button
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Variável para controlar o cooldown
+local canUse = true
+local cooldownTime = 10
+
+-- Criar a interface (ScreenGui)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RunchGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- Criar o Frame principal (arrastável)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 220, 0, 120)
+frame.Position = UDim2.new(0.5, -110, 0.1, 0) -- Começa no topo centro
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true -- ISSO TORNA ARRASTÁVEL AUTOMATICAMENTE!
+frame.Parent = screenGui
+
+-- Arredondar cantos
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 12)
+frameCorner.Parent = frame
+
+-- Barra superior (visual de "título")
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 35)
+topBar.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+topBar.BorderSizePixel = 0
+topBar.Parent = frame
+
+local topBarCorner = Instance.new("UICorner")
+topBarCorner.CornerRadius = UDim.new(0, 12)
+topBarCorner.Parent = topBar
+
+-- Título
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -10, 1, 0)
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "🎯 Runch Control"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 16
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Criar o botão principal
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 190, 0, 45)
+button.Position = UDim2.new(0.5, -95, 0, 45)
+button.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+button.Text = "🚀 USAR RUNCH"
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.TextSize = 18
+button.Font = Enum.Font.GothamBold
+button.BorderSizePixel = 0
+button.Parent = frame
+
+-- Arredondar botão
+local buttonCorner = Instance.new("UICorner")
+buttonCorner.CornerRadius = UDim.new(0, 10)
+buttonCorner.Parent = button
+
+-- Label de status/cooldown
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(1, -20, 0, 25)
+statusLabel.Position = UDim2.new(0, 10, 0, 95)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "✅ Pronto para usar!"
+statusLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+statusLabel.TextSize = 14
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.Parent = frame
+
+-- Função para usar o Runch
+local function useRunch()
+    if not canUse then
+        statusLabel.Text = "⏳ Aguarde o cooldown!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 150, 0)
+        wait(0.5)
+        return
+    end
+    
+    local character = LocalPlayer.Character
+    if not character then
+        statusLabel.Text = "❌ Personagem não encontrado!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        return
+    end
+    
+    local runch = character:FindFirstChild("Runch ")
+    if not runch then
+        statusLabel.Text = "❌ Runch não encontrado!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        return
+    end
+    
+    local event = runch:FindFirstChild("Event")
+    if not event then
+        statusLabel.Text = "❌ Event não encontrado!"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        return
+    end
+    
+    -- Ativa o cooldown
+    canUse = false
+    button.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+    button.Text = "⏸️ COOLDOWN"
+    
+    -- Dispara o evento
+    event:FireServer()
+    print("✅ Evento Runch ativado!")
+    
+    -- Contagem regressiva visual
+    for i = cooldownTime, 1, -1 do
+        statusLabel.Text = "⏳ Cooldown: " .. i .. "s"
+        statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        button.Text = "⏸️ AGUARDE " .. i .. "s"
+        task.wait(1)
+    end
+    
+    -- Libera o uso novamente
+    canUse = true
+    button.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+    button.Text = "🚀 USAR RUNCH"
+    statusLabel.Text = "✅ Pronto para usar!"
+    statusLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+    print("✅ Cooldown terminado!")
+end
+
+-- Conectar o botão à função
+button.MouseButton1Click:Connect(useRunch)
+
+-- Efeito de hover no botão
+button.MouseEnter:Connect(function()
+    if canUse then
+        button.BackgroundColor3 = Color3.fromRGB(0, 230, 120)
+    end
+end)
+
+button.MouseLeave:Connect(function()
+    if canUse then
+        button.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+    end
+end)
+
+print("🎮 Interface Runch carregada! Arraste pela barra superior para mover.")# Runch-button
